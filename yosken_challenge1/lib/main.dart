@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'src/chargespots.dart' as chargespots;
 import 'package:riverpod/riverpod.dart';
-
+import 'package:yosken_challenge1/component/card.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -49,16 +49,7 @@ class ChargeSpotInfoPage extends ConsumerWidget {
             itemCount: value.charger_spots!.length,
             itemBuilder: (BuildContext context, int index) {
               final spotData = value.charger_spots![index];
-              return Card(
-                child: ListTile(
-                  title: Text(
-                    '${spotData.name}',
-                  ),
-                  subtitle: Text(
-                    '${spotData.now_available}',
-                  ),
-                ),
-              );
+              return makeCard(spotData);
             },
           );
         },
