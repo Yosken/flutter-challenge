@@ -43,6 +43,7 @@ class ChargeSpotInfoPage extends ConsumerWidget {
 
     return Scaffold(
       body: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
         child: asyncValue.when(data: (value){
           print('hello');
           return ListView.builder(
