@@ -24,9 +24,11 @@ class LatLng {
 @JsonSerializable()
 class ChargerSpotServiceTime {
   ChargerSpotServiceTime({
-    required this.day, //定休日
+    required this.business_day,
+    required this.day,
     required this.start_time,
     required this.end_time,
+    required this.today,
   });
 
   factory ChargerSpotServiceTime.fromJson(Map<String, dynamic> json) =>
@@ -34,9 +36,11 @@ class ChargerSpotServiceTime {
 
   Map<String, dynamic> toJson() => _$ChargerSpotServiceTimeToJson(this);
 
-  final String?day;
+  final String? business_day;
+  final String? day;
   final String? start_time;
   final String? end_time;
+  final bool? today;
 }
 
 @JsonSerializable()
@@ -84,7 +88,7 @@ class GogoChargerDevice {
 @JsonSerializable()
 class ChargerSpot {
   ChargerSpot({
-    required this.charger_spot_service_times, //ChargerSpotServiceTimes->[day:定休日, start_time, end_time]
+    required this.charger_spot_service_times, //ChargerSpotServiceTimes->[定休日, start_time, end_time]
     required this.now_available,
     required this.images, //ChargerSpotImage->url
     required this.latitude,

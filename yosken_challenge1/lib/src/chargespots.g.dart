@@ -19,17 +19,21 @@ Map<String, dynamic> _$LatLngToJson(LatLng instance) => <String, dynamic>{
 ChargerSpotServiceTime _$ChargerSpotServiceTimeFromJson(
         Map<String, dynamic> json) =>
     ChargerSpotServiceTime(
+      business_day: json['business_day'] as String?,
       day: json['day'] as String?,
       start_time: json['start_time'] as String?,
       end_time: json['end_time'] as String?,
+      today: json['today'] as bool?,
     );
 
 Map<String, dynamic> _$ChargerSpotServiceTimeToJson(
         ChargerSpotServiceTime instance) =>
     <String, dynamic>{
+      'business_day': instance.business_day,
       'day': instance.day,
       'start_time': instance.start_time,
       'end_time': instance.end_time,
+      'today': instance.today,
     };
 
 ChargerSpotImage _$ChargerSpotImageFromJson(Map<String, dynamic> json) =>

@@ -5,7 +5,7 @@ import 'card_listtile.dart';
 
 Widget makeCard(ChargerSpot chargerSpot) {
   return Card(
-    margin: EdgeInsets.only(bottom: 20),
+      margin: EdgeInsets.only(bottom: 20),
       shadowColor: Colors.black.withOpacity(0.45),
       elevation: 12,
       color: Colors.white,
@@ -26,11 +26,30 @@ Widget makeCard(ChargerSpot chargerSpot) {
             ),
           ),
           // listtile(number)
-          makeListTile(chargerSpot)
+          makeListTileOfNumber(chargerSpot),
+          //listtile(power)
+          makeListTileOfPower(chargerSpot),
+          //listtile(serviceTime)
+          makeListTileOfServiceTime(chargerSpot),
           //listtile(number)
-          //listtile(number)
-          //listtile(number)
+          makeListTileOfRegularHoliday(chargerSpot),
           //text(地図アプリで経路を見る)
+          ListTile(
+            leading: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Text(
+                  '地図アプリで経路を見る',
+                  style: TextStyle(color: Colors.lightGreen, fontSize: 14),
+                ),
+                Icon(
+                  Icons.layers_outlined,
+                  color: Colors.lightGreen,
+                  size: 18,
+                ),
+              ],
+            ),
+          )
         ],
       ));
 }
