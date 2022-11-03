@@ -54,10 +54,4 @@ Widget makeCard(ChargerSpot chargerSpot) {
       ));
 }
 
-//
-// class MakeCard {
-//   final chargespots.ChargerSpot chargerSpot;
-//   final int index;
-//
-//   MakeCard(this.chargerSpot, this.index);
-// }
+

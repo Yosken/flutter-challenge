@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:json_annotation/json_annotation.dart';
 import 'package:riverpod/riverpod.dart';
+import 'package:yosken_challenge1/secret/key.dart' as key;
 
 part 'chargespots.g.dart';
 
@@ -164,13 +165,12 @@ Future<ChargerSpots> fetchChargerSpots(SwAndNeLatLng swAndNeLatLng) async {
   final uri = Uri.https('stg.evene.jp', '/api/charger_spots', queryParameters);
   final response = await http.get(uri, headers: {
     'accept': 'application/json',
-    'X-EVENE-NATIVE-API-TOKEN': 'C6DGdRH9XCD8jlEU'
+    'X-EVENE-NATIVE-API-TOKEN': key.token
   });
   if (response.statusCode == 200) {
     print(response.body);
     return ChargerSpots.fromJson(json.decode(response.body));
   } else {
-    print('errorrrrr');
     throw Exception('Can\'t get users');
   }
 }
