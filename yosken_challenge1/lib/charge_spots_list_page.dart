@@ -21,22 +21,26 @@ class ChargeSpotInfoPage extends ConsumerWidget {
     final asyncValue =
     ref.watch(chargespots.chargerSpotsFutureProvider(swAndNeLatLng));
 
-    return Scaffold(
-      body: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 32),
-        child: asyncValue.when(data: (value){
-          print('hello');
-          return ListView.builder(
-            itemCount: value.charger_spots!.length,
-            itemBuilder: (BuildContext context, int index) {
-              final spotData = value.charger_spots![index];
-              return makeCard(spotData);
-            },
-          );
-        },
-          error: (error, stack) => Text('Error: $error'),
-          loading: () => const CircularProgressIndicator(),),
-      ),
+    return DraggableScrollableSheet(
+      initialChildSize: 0.92,
+      minChildSize: 0,
+      maxChildSize: 0.92,
+      builder:(context, scrollController)=> Container(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: asyncValue.when(data: (value){
+            print('hello');
+            return ListView.builder(
+              controller: scrollController,
+              itemCount: value.charger_spots!.length,
+              itemBuilder: (BuildContext context, int index) {
+                final spotData = value.charger_spots![index];
+                return makeCard(spotData);
+              },
+            );
+          },
+            error: (error, stack) => Text('Error: $error'),
+            loading: () => const CircularProgressIndicator(),),
+        ),
     );
   }
 }

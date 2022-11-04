@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:yosken_challenge1/charge_spots_list_page.dart';
+import 'package:yosken_challenge1/charge_spots_list_page2.dart';
+
 import 'package:yosken_challenge1/component/pageview.dart';
+import 'package:yosken_challenge1/component/show_modal_bottom_sheet.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({Key? key}) : super(key: key);
@@ -45,12 +48,11 @@ class MapPageState extends State<MapPage> {
     positionStream =
         Geolocator.getPositionStream(locationSettings: locationSettings)
             .listen((Position? position) {
-          currentPosition = position;
-          print(position == null
-              ? 'Unknown'
-              : '${position.latitude.toString()}, ${position.longitude
-              .toString()}');
-        });
+      currentPosition = position;
+      print(position == null
+          ? 'Unknown'
+          : '${position.latitude.toString()}, ${position.longitude.toString()}');
+    });
   }
 
   @override
@@ -60,13 +62,48 @@ class MapPageState extends State<MapPage> {
       children: [
         GoogleMap(
           mapType: MapType.normal,
+          padding: const EdgeInsets.fromLTRB(0, 0, 12, 492),
           initialCameraPosition: _kGooglePlex,
-          myLocationEnabled: true, //現在位置をマップ上に表示
+          myLocationButtonEnabled: true,
+          //現在位置のボタン
+          myLocationEnabled: true,
+          //現在位置をマップ上に表示
           onMapCreated: (GoogleMapController controller) {
             _controller = controller;
           },
         ),
-        ChargeSpotInfoPageView(),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Container(
+              alignment: Alignment.centerRight,
+              padding: const EdgeInsets.fromLTRB(0, 0, 12, 12),
+              child: SizedBox(
+                height: 48,
+                width: 120,
+                child: ElevatedButton(
+                  onPressed: () {
+                    showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        //trueにしないと、Containerのheightが反映されない
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.vertical(top: Radius.circular(15)),
+                        ),
+                        builder: (BuildContext context) => Container(
+                          height: double.infinity,
+                          child:  ChargeSpotInfoPage(),
+                        )
+                    );
+                  },
+                  child: Text('リストを表示'),
+                ),
+              ),
+            ),
+            const ChargeSpotInfoPageView(),
+          ],
+        ),
       ],
     );
   }
