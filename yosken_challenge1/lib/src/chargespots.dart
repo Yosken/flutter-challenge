@@ -1,8 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:json_annotation/json_annotation.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart'as google;
 import 'package:riverpod/riverpod.dart';
+import 'package:yosken_challenge1/model/fetch_my_location.dart';
 import 'package:yosken_challenge1/secret/key.dart' as key;
 
 part 'chargespots.g.dart';
@@ -175,8 +178,41 @@ Future<ChargerSpots> fetchChargerSpots(SwAndNeLatLng swAndNeLatLng) async {
   }
 }
 
-final chargerSpotsFutureProvider = FutureProvider.family<ChargerSpots, SwAndNeLatLng>((ref, swAndNeLatLng) async {
-  print('FutureProvider');
-  final chargerSpots = await fetchChargerSpots(swAndNeLatLng);
-  return chargerSpots;
+final rangeLatLngProvider = StateProvider((ref) {
+  return SwAndNeLatLng(34.683331703634124, 139.7657155055581,
+      35.686849507072736, 139.77340835691592);
 });
+
+final firstLatLngProvider = StateProvider((ref) => const google.LatLng(35.680399,139.767779));
+
+// final myLatLngProvider = FutureProvider((ref) async{
+//   final myLatLng = getMyL;
+//   return myLatLng;
+// });
+
+final chargerSpotsFutureProvider = FutureProvider((ref) async {
+  print('FutureProvider');
+  final swAndNeLatLng = ref.watch(rangeLatLngProvider);
+  return fetchChargerSpots(swAndNeLatLng);
+});
+
+
+// final myPositionProvider = FutureProvider((ref) async {
+//   print('latlngfutureProvider');
+//   final myPosition = await getMyPosition();
+//   return myPosition;
+// });
+
+final myPositionProvider = FutureProvider((ref) async {
+  print('latlngfutureProvider');
+  final count = ref.watch(countProvider);
+  final range = ref.watch(rangeProvider);
+  final myPosition = getSwAndNeLatLng(range);
+  return myPosition;
+});
+
+final countProvider = StateProvider((ref) => 0);
+
+final rangeProvider = StateProvider((ref) => google.LatLng(0.1,0.1));
+
+

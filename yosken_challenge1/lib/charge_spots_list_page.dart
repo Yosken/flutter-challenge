@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'src/chargespots.dart' as chargespots;
-import 'package:riverpod/riverpod.dart';
 import 'package:yosken_challenge1/component/card.dart';
 
 final chargespots.SwAndNeLatLng swAndNeLatLng = chargespots.SwAndNeLatLng(
@@ -19,28 +18,31 @@ class ChargeSpotInfoPage extends ConsumerWidget {
 
     print('beforeWatch');
     final asyncValue =
-    ref.watch(chargespots.chargerSpotsFutureProvider(swAndNeLatLng));
+    ref.watch(chargespots.chargerSpotsFutureProvider);
 
-    return DraggableScrollableSheet(
-      initialChildSize: 0.92,
-      minChildSize: 0,
-      maxChildSize: 0.92,
-      builder:(context, scrollController)=> Container(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
-          child: asyncValue.when(data: (value){
-            print('hello');
-            return ListView.builder(
+    return asyncValue.when(data: (value){
+      print('hello');
+      return SizedBox(
+        height: double.infinity,
+        child: DraggableScrollableSheet(
+          initialChildSize: 0.92,
+          minChildSize: 0,
+          maxChildSize: 0.92,
+          builder: (context, scrollController) => Container(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: ListView.builder(
               controller: scrollController,
               itemCount: value.charger_spots!.length,
               itemBuilder: (BuildContext context, int index) {
                 final spotData = value.charger_spots![index];
                 return makeCard(spotData);
               },
-            );
-          },
-            error: (error, stack) => Text('Error: $error'),
-            loading: () => const CircularProgressIndicator(),),
+            ),
+          ),
         ),
-    );
+      );
+    },
+      error: (error, stack) => Text('Error: $error'),
+      loading: () => Center(child: SizedBox(height: 80,width: 80,child: CircularProgressIndicator())));
   }
 }
