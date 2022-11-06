@@ -9,6 +9,8 @@ import 'package:yosken_challenge1/charge_spots_list_page2.dart';
 import 'package:yosken_challenge1/component/pageview.dart';
 import 'package:yosken_challenge1/component/show_modal_bottom_sheet.dart';
 import 'package:yosken_challenge1/model/fetch_my_location.dart';
+import 'package:yosken_challenge1/component/marker.dart';
+import 'package:yosken_challenge1/src/chargespots.dart' as chargespots;
 
 class MapPage extends StatefulWidget {
   const MapPage({Key? key}) : super(key: key);
@@ -18,12 +20,15 @@ class MapPage extends StatefulWidget {
 }
 
 class MapPageState extends State<MapPage> {
-  Position? currentPosition;//何でか知らんが、google mapの現在地はこれを取得
-  Widget _widget= CircularProgressIndicator();
+  Position? currentPosition; //何でか知らんが、google mapの現在地はこれを取得
+  Widget _asyncWidget = const CircularProgressIndicator();
+  Set<Marker> _markers = {};
 
   // late GoogleMapController? _controller;
   Completer<GoogleMapController> _controller = Completer();
-  late StreamSubscription<Position> positionStream;//現在地をlistenし続ける関数
+  late StreamSubscription<Position> positionStream; //現在地をlistenし続ける関数
+
+  final markerController = StreamController<Set<Marker>>();
 
   //初期位置
   final CameraPosition _kGooglePlex = const CameraPosition(
@@ -55,12 +60,17 @@ class MapPageState extends State<MapPage> {
       currentPosition = position;
       print('change position');
     });
-  }
 
+    //marker更新
+    markerController.stream.listen((event) {
+      setState(() {
+        _markers = event;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-
     return Stack(
       alignment: Alignment.bottomCenter,
       children: [
@@ -72,6 +82,7 @@ class MapPageState extends State<MapPage> {
           //現在位置のボタン
           myLocationEnabled: true,
           //現在位置をマップ上に表示
+          markers: _markers,
           onMapCreated: (GoogleMapController controller) {
             // _controller = controller;
             // setState(() {
@@ -81,24 +92,33 @@ class MapPageState extends State<MapPage> {
             asyncChargeSpotInfoPageView();
           },
         ),
-        _widget,
+        _asyncWidget,
       ],
     );
   }
 
-  void moveCamera(GoogleMapController? controller, LatLng latLng){
-    controller?.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: latLng,zoom: 19)));
+  void moveCamera(GoogleMapController? controller, LatLng latLng) {
+    controller?.animateCamera(CameraUpdate.newCameraPosition(
+        CameraPosition(target: latLng, zoom: 19)));
   }
 
-  Future<void> asyncChargeSpotInfoPageView()async{
+  Future<void> asyncChargeSpotInfoPageView() async {
     final GoogleMapController mapController = await _controller.future;
     setState(() {
-      _widget = ChargeSpotInfoPageView(mapController);
+      _asyncWidget = ChargeSpotInfoPageView(mapController,markerController);
     });
   }
-  //
-  // Future<void> moveToTheLocation(LatLng latLng)async{
-  //   final GoogleMapController mapController = await _controller.future;
-  //   mapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: latLng,zoom: 19)));
-  // }
+
+  void updateMarkers(chargespots.ChargerSpots chargerSpots) {
+    final currentMarkers = makeMarker(chargerSpots);
+    setState(() {
+      _markers = currentMarkers;
+    });
+  }
+
+//
+// Future<void> moveToTheLocation(LatLng latLng)async{
+//   final GoogleMapController mapController = await _controller.future;
+//   mapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: latLng,zoom: 19)));
+// }
 }

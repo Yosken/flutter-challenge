@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart'as google;
 import 'package:yosken_challenge1/src/chargespots.dart';
 import 'card_image.dart';
 import 'card_listtile.dart';
 
-Widget makeCard(ChargerSpot chargerSpot, PageController pageController, int index, context) {
+Widget makeCard(ChargerSpot chargerSpot, PageController pageController, int index, context, google.GoogleMapController mapController) {
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 8),
     child: InkWell(
       onTap: (){
         pageController.jumpToPage(index);
         Navigator.pop(context);
+        mapController.animateCamera(google.CameraUpdate.newCameraPosition(google.CameraPosition(target: google.LatLng(chargerSpot.latitude!,chargerSpot.longitude!),zoom: 14)));
+
       },
       child: Card(
           margin: EdgeInsets.only(bottom: 20),

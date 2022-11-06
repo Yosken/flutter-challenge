@@ -6,12 +6,12 @@ part of 'chargespots.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-LatLng _$LatLngFromJson(Map<String, dynamic> json) => LatLng(
+LatLngOfChargerSpots _$LatLngFromJson(Map<String, dynamic> json) => LatLngOfChargerSpots(
       latitude: (json['latitude'] as num?)?.toDouble(),
       longitude: (json['longitude'] as num?)?.toDouble(),
     );
 
-Map<String, dynamic> _$LatLngToJson(LatLng instance) => <String, dynamic>{
+Map<String, dynamic> _$LatLngToJson(LatLngOfChargerSpots instance) => <String, dynamic>{
       'latitude': instance.latitude,
       'longitude': instance.longitude,
     };
@@ -67,6 +67,7 @@ Map<String, dynamic> _$GogoChargerDeviceToJson(GogoChargerDevice instance) =>
     };
 
 ChargerSpot _$ChargerSpotFromJson(Map<String, dynamic> json) => ChargerSpot(
+      uuid: json['uuid'] as String?,
       charger_spot_service_times: (json['charger_spot_service_times']
               as List<dynamic>?)
           ?.map(
@@ -89,6 +90,7 @@ ChargerSpot _$ChargerSpotFromJson(Map<String, dynamic> json) => ChargerSpot(
 
 Map<String, dynamic> _$ChargerSpotToJson(ChargerSpot instance) =>
     <String, dynamic>{
+      'uuid': instance.uuid,
       'charger_spot_service_times': instance.charger_spot_service_times,
       'now_available': instance.now_available,
       'images': instance.images,

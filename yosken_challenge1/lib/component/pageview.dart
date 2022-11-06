@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:yosken_challenge1/charge_spots_list_page.dart';
 import 'package:yosken_challenge1/component/cardlist.dart';
+import 'package:yosken_challenge1/component/marker.dart';
 import 'package:yosken_challenge1/src/chargespots.dart' as chargespots;
 import 'package:riverpod/riverpod.dart';
 import 'package:yosken_challenge1/google_map_page.dart';
@@ -16,8 +17,9 @@ import 'package:yosken_challenge1/model/fetch_my_location.dart' as my_location;
 // final startFetchProvider = StateProvider((ref) => chargespots.chargerSpotsFutureProvider);
 
 class ChargeSpotInfoPageView extends ConsumerWidget {
-  const ChargeSpotInfoPageView(this.controller,{Key? key}) : super(key: key);
-  final GoogleMapController controller;
+  const ChargeSpotInfoPageView(this.googleMapController,this.markerController,{Key? key}) : super(key: key);
+  final GoogleMapController googleMapController;
+  final StreamController<Set<Marker>> markerController;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -27,7 +29,8 @@ class ChargeSpotInfoPageView extends ConsumerWidget {
 
     final asyncMyLatLng = ref.watch(chargespots.rangeLatLngProvider);
     final asyncMyPosition = ref.watch(chargespots.myPositionProvider);
-    final mapController = controller;
+    final mapController = googleMapController;
+    final markerCntrlr = markerController;
 
 
     //final fetch = ref.watch(startFetchProvider);//currentLatLngが変わることで、chargespotsFutureProviderが変わる（Api取得開始）
@@ -52,7 +55,7 @@ class ChargeSpotInfoPageView extends ConsumerWidget {
               ),
                 onPressed: () {
                   ref.read(chargespots.countProvider.notifier).state++;
-                  mapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: LatLng(36.4,139.8))));
+                  // mapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: LatLng(36.4,139.8),zoom: 14)));
 
                   asyncMyPosition.when(
 
@@ -84,7 +87,7 @@ class ChargeSpotInfoPageView extends ConsumerWidget {
                       borderRadius:
                           BorderRadius.vertical(top: Radius.circular(15)),
                     ),
-                    builder: (BuildContext context) => ChargeSpotInfoPage(pageController));
+                    builder: (BuildContext context) => ChargeSpotInfoPage(pageController, mapController));
               },
               child: Text('リストを表示'),
             ),
@@ -92,10 +95,17 @@ class ChargeSpotInfoPageView extends ConsumerWidget {
         ),
         asyncValue.when(
           data: (value) {
+            // MapPageState().updateMarkers(value);
+            final _markers = makeMarker(value);
+            markerCntrlr.sink.add(_markers);
             return Container(
               height: 430,
               child: PageView(
                 controller: pageController,
+                onPageChanged:(int index) {
+                  final selectSpot = value.charger_spots!.elementAt(index);
+                  mapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: LatLng(selectSpot.latitude!,selectSpot.longitude!),zoom: 14)));
+                },
                 children: makeCardList(value, pageController),
               ),
             );

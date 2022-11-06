@@ -11,13 +11,13 @@ import 'package:yosken_challenge1/secret/key.dart' as key;
 part 'chargespots.g.dart';
 
 @JsonSerializable()
-class LatLng {
-  LatLng({
+class LatLngOfChargerSpots {
+  LatLngOfChargerSpots({
     required this.latitude,
     required this.longitude,
   });
 
-  factory LatLng.fromJson(Map<String, dynamic> json) => _$LatLngFromJson(json);
+  factory LatLngOfChargerSpots.fromJson(Map<String, dynamic> json) => _$LatLngFromJson(json);
 
   Map<String, dynamic> toJson() => _$LatLngToJson(this);
 
@@ -92,6 +92,7 @@ class GogoChargerDevice {
 @JsonSerializable()
 class ChargerSpot {
   ChargerSpot({
+    required this.uuid,
     required this.charger_spot_service_times, //ChargerSpotServiceTimes->[定休日, start_time, end_time]
     required this.now_available,
     required this.images, //ChargerSpotImage->url
@@ -107,6 +108,7 @@ class ChargerSpot {
 
   Map<String, dynamic> toJson() => _$ChargerSpotToJson(this);
 
+  final String? uuid;
   final List<ChargerSpotServiceTime>? charger_spot_service_times;
   final String? now_available;
   final List<ChargerSpotImage>? images;
