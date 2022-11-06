@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'src/chargespots.dart' as chargespots;
 import 'package:yosken_challenge1/component/card.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:yosken_challenge1/component/card_no_result.dart';
 
 final chargespots.SwAndNeLatLng swAndNeLatLng = chargespots.SwAndNeLatLng(
     34.683331703634124,
@@ -26,6 +27,10 @@ class ChargeSpotInfoPage extends ConsumerWidget {
     ref.watch(chargespots.chargerSpotsFutureProvider);
 
     return asyncValue.when(data: (value){
+      if (value.charger_spots!.isEmpty){
+        final card =  makeNoResultCard();
+        return card;
+      }
       print('hello');
       return SizedBox(
         height: double.infinity,

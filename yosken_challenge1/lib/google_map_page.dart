@@ -1,4 +1,8 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:ui' as ui;
+import 'dart:typed_data';
+import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,6 +10,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:yosken_challenge1/charge_spots_list_page.dart';
 import 'package:yosken_challenge1/charge_spots_list_page2.dart';
+import 'package:yosken_challenge1/component/marker_custom.dart';
 import 'package:yosken_challenge1/component/pageview.dart';
 import 'package:yosken_challenge1/component/show_modal_bottom_sheet.dart';
 import 'package:yosken_challenge1/model/fetch_my_location.dart';
@@ -24,6 +29,9 @@ class MapPageState extends State<MapPage> {
   Widget _asyncWidget = const CircularProgressIndicator();
   Set<Marker> _markers = {};
 
+  // final GlobalKey globalKey = GlobalKey();
+  late BitmapDescriptor myIcon = BitmapDescriptor.defaultMarker;
+
   // late GoogleMapController? _controller;
   Completer<GoogleMapController> _controller = Completer();
   late StreamSubscription<Position> positionStream; //現在地をlistenし続ける関数
@@ -31,10 +39,12 @@ class MapPageState extends State<MapPage> {
   final markerController = StreamController<Set<Marker>>();
 
   //初期位置
-  final CameraPosition _kGooglePlex = const CameraPosition(
-    target: LatLng(43.0686606, 141.3485613),
+  final CameraPosition _tokyoStation = const CameraPosition(
+    target: LatLng(35.681789, 139.766948),
     zoom: 14,
   );
+
+  final int _i = 0;
 
   final LocationSettings locationSettings = const LocationSettings(
     accuracy: LocationAccuracy.high, //正確性:highはAndroid(0-100m),iOS(10m)
@@ -61,6 +71,8 @@ class MapPageState extends State<MapPage> {
       print('change position');
     });
 
+
+
     //marker更新
     markerController.stream.listen((event) {
       setState(() {
@@ -77,7 +89,7 @@ class MapPageState extends State<MapPage> {
         GoogleMap(
           mapType: MapType.normal,
           padding: const EdgeInsets.fromLTRB(0, 0, 12, 492),
-          initialCameraPosition: _kGooglePlex,
+          initialCameraPosition: _tokyoStation,
           myLocationButtonEnabled: true,
           //現在位置のボタン
           myLocationEnabled: true,
@@ -104,17 +116,33 @@ class MapPageState extends State<MapPage> {
 
   Future<void> asyncChargeSpotInfoPageView() async {
     final GoogleMapController mapController = await _controller.future;
+    final myIcon = BitmapDescriptor.fromBytes(await getBytesFromAsset('assets/marker.png', 150));
     setState(() {
-      _asyncWidget = ChargeSpotInfoPageView(mapController,markerController);
+      _asyncWidget = ChargeSpotInfoPageView(
+        myIcon,
+        mapController,
+        markerController,
+      );
     });
   }
 
-  void updateMarkers(chargespots.ChargerSpots chargerSpots) {
-    final currentMarkers = makeMarker(chargerSpots);
-    setState(() {
-      _markers = currentMarkers;
-    });
+  Future<Uint8List> getBytesFromAsset(String path, int width) async {
+    ByteData data = await rootBundle.load(path);
+    ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(),
+        targetWidth: width);
+    ui.FrameInfo fi = await codec.getNextFrame();
+    return (await fi.image.toByteData(format: ui.ImageByteFormat.png))!
+        .buffer
+        .asUint8List();
   }
+
+
+// void updateMarkers(chargespots.ChargerSpots chargerSpots) {
+//   final currentMarkers = makeMarker(chargerSpots);
+//   setState(() {
+//     _markers = currentMarkers;
+//   });
+// }
 
 //
 // Future<void> moveToTheLocation(LatLng latLng)async{
