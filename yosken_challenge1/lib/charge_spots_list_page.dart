@@ -10,10 +10,12 @@ final chargespots.SwAndNeLatLng swAndNeLatLng = chargespots.SwAndNeLatLng(
     139.77340835691592);
 
 class ChargeSpotInfoPage extends ConsumerWidget {
-  const ChargeSpotInfoPage({Key? key}) : super(key: key);
+  const ChargeSpotInfoPage(this.controller,{Key? key}) : super(key: key);
+  final PageController controller;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final pageController = controller;
 
 
     print('beforeWatch');
@@ -35,7 +37,7 @@ class ChargeSpotInfoPage extends ConsumerWidget {
               itemCount: value.charger_spots!.length,
               itemBuilder: (BuildContext context, int index) {
                 final spotData = value.charger_spots![index];
-                return makeCard(spotData);
+                return makeCard(spotData, pageController, index, context);
               },
             ),
           ),

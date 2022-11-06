@@ -6,7 +6,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:yosken_challenge1/charge_spots_list_page.dart';
 import 'package:yosken_challenge1/charge_spots_list_page2.dart';
-
 import 'package:yosken_challenge1/component/pageview.dart';
 import 'package:yosken_challenge1/component/show_modal_bottom_sheet.dart';
 import 'package:yosken_challenge1/model/fetch_my_location.dart';
@@ -20,8 +19,10 @@ class MapPage extends StatefulWidget {
 
 class MapPageState extends State<MapPage> {
   Position? currentPosition;//何でか知らんが、google mapの現在地はこれを取得
+  Widget _widget= CircularProgressIndicator();
 
-  late GoogleMapController _controller;
+  // late GoogleMapController? _controller;
+  Completer<GoogleMapController> _controller = Completer();
   late StreamSubscription<Position> positionStream;//現在地をlistenし続ける関数
 
   //初期位置
@@ -72,11 +73,32 @@ class MapPageState extends State<MapPage> {
           myLocationEnabled: true,
           //現在位置をマップ上に表示
           onMapCreated: (GoogleMapController controller) {
-            _controller = controller;
+            // _controller = controller;
+            // setState(() {
+            //   _widget = ChargeSpotInfoPageView(_controller!);
+            // });
+            _controller.complete(controller);
+            asyncChargeSpotInfoPageView();
           },
         ),
-        ChargeSpotInfoPageView(),
+        _widget,
       ],
     );
   }
+
+  void moveCamera(GoogleMapController? controller, LatLng latLng){
+    controller?.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: latLng,zoom: 19)));
+  }
+
+  Future<void> asyncChargeSpotInfoPageView()async{
+    final GoogleMapController mapController = await _controller.future;
+    setState(() {
+      _widget = ChargeSpotInfoPageView(mapController);
+    });
+  }
+  //
+  // Future<void> moveToTheLocation(LatLng latLng)async{
+  //   final GoogleMapController mapController = await _controller.future;
+  //   mapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: latLng,zoom: 19)));
+  // }
 }

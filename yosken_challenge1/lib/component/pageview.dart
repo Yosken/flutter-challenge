@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
@@ -13,20 +15,20 @@ import 'package:yosken_challenge1/model/fetch_my_location.dart' as my_location;
 
 // final startFetchProvider = StateProvider((ref) => chargespots.chargerSpotsFutureProvider);
 
-
 class ChargeSpotInfoPageView extends ConsumerWidget {
-  const ChargeSpotInfoPageView({Key? key}) : super(key: key);
+  const ChargeSpotInfoPageView(this.controller,{Key? key}) : super(key: key);
+  final GoogleMapController controller;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final PageController pageController =
         PageController(viewportFraction: 0.85);
-    print('beforeWatch');
     // final currentLatLng = ref.watch(chargespots.latLngProvider); //ボタン押したりinitstateで変わる
 
     final asyncMyLatLng = ref.watch(chargespots.rangeLatLngProvider);
-
     final asyncMyPosition = ref.watch(chargespots.myPositionProvider);
+    final mapController = controller;
+
 
     //final fetch = ref.watch(startFetchProvider);//currentLatLngが変わることで、chargespotsFutureProviderが変わる（Api取得開始）
 
@@ -36,18 +38,35 @@ class ChargeSpotInfoPageView extends ConsumerWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        ElevatedButton(
-            onPressed: () {
-              ref.read(chargespots.countProvider.notifier).state ++;
-              asyncMyPosition.when(data: (value){
-                print('yes');
-                ref.read(chargespots.rangeLatLngProvider.notifier).state = value;
-              }, error: (error, stack) => print('Error: $error'), loading: ()=>print('loading'));
-            },
-            child: Container(
-              height: 80,
-              width: 80,
-            )),
+        SizedBox(
+          height: 80,
+        ),
+        Expanded(
+          child: Container(
+            alignment: Alignment.topCenter,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                foregroundColor: const Color.fromRGBO(86, 198, 0, 1),
+                backgroundColor: const Color.fromRGBO(243, 255, 233, 1),
+                shape: const StadiumBorder(),
+              ),
+                onPressed: () {
+                  ref.read(chargespots.countProvider.notifier).state++;
+                  mapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: LatLng(36.4,139.8))));
+
+                  asyncMyPosition.when(
+
+                      data: (value) {
+                        // MapPageState().moveToTheLocation(LatLng(value.swLat,value.swLng));
+                        ref.read(chargespots.rangeLatLngProvider.notifier).state =
+                            value;
+                      },
+                      error: (error, stack) => print('Error: $error'),
+                      loading: () => print('loading'));
+                },
+                child: const Text('現在地で検索')),
+          ),
+        ),
         Container(
           alignment: Alignment.centerRight,
           padding: const EdgeInsets.fromLTRB(0, 0, 12, 12),
@@ -65,7 +84,7 @@ class ChargeSpotInfoPageView extends ConsumerWidget {
                       borderRadius:
                           BorderRadius.vertical(top: Radius.circular(15)),
                     ),
-                    builder: (BuildContext context) => ChargeSpotInfoPage());
+                    builder: (BuildContext context) => ChargeSpotInfoPage(pageController));
               },
               child: Text('リストを表示'),
             ),
@@ -73,12 +92,11 @@ class ChargeSpotInfoPageView extends ConsumerWidget {
         ),
         asyncValue.when(
           data: (value) {
-            print('hello');
             return Container(
               height: 430,
               child: PageView(
                 controller: pageController,
-                children: makeCardList(value),
+                children: makeCardList(value, pageController),
               ),
             );
           },
