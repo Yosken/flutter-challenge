@@ -88,9 +88,9 @@ class MapPageState extends State<MapPage> {
       children: [
         GoogleMap(
           mapType: MapType.normal,
-          padding: const EdgeInsets.fromLTRB(0, 0, 12, 492),
+          padding: const EdgeInsets.fromLTRB(0, 0, 0, 240),
           initialCameraPosition: _tokyoStation,
-          myLocationButtonEnabled: true,
+          myLocationButtonEnabled: false,
           //現在位置のボタン
           myLocationEnabled: true,
           //現在位置をマップ上に表示

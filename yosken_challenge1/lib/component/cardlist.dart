@@ -5,11 +5,11 @@ import 'package:yosken_challenge1/component/card_no_result.dart';
 import 'card_image.dart';
 import 'card_listtile.dart';
 
-List<Widget> makeCardList(ChargerSpots chargerSpots, PageController pageController) {
+List<Widget> makeCardList(ChargerSpots chargerSpots) {
   final List<Widget> cardList = [];
   if(chargerSpots.charger_spots!.isNotEmpty){
     chargerSpots.charger_spots!.asMap().forEach((int i, chargerSpot) {
-      cardList.add(makeCardForPageView(chargerSpot, pageController, i));
+      cardList.add(makeCardForPageView(chargerSpot));
     });
     return cardList;
   } else {

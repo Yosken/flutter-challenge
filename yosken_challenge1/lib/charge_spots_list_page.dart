@@ -39,7 +39,7 @@ class ChargeSpotInfoPage extends ConsumerWidget {
           minChildSize: 0,
           maxChildSize: 0.92,
           builder: (context, scrollController) => Container(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
+            // padding: const EdgeInsets.symmetric(horizontal: 32),
             child: ListView.builder(
               controller: scrollController,
               itemCount: value.charger_spots!.length,
