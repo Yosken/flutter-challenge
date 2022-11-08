@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as google;
+import 'package:yosken_challenge1/constant/others.dart';
+import 'package:yosken_challenge1/model/camera_move.dart';
 import 'package:yosken_challenge1/src/chargespots.dart';
 import 'card_image.dart';
-import 'card_listtile.dart';
+import 'package:yosken_challenge1/component/row_of_card/importer_card_row.dart';
+import 'package:yosken_challenge1/constant/importer_constant.dart';
 
 Widget makeCard(ChargerSpot chargerSpot, PageController pageController,
     int index, context, google.GoogleMapController mapController) {
@@ -10,69 +13,33 @@ Widget makeCard(ChargerSpot chargerSpot, PageController pageController,
     onTap: () {
       pageController.jumpToPage(index);
       Navigator.pop(context);
-      mapController.animateCamera(google.CameraUpdate.newCameraPosition(
-          google.CameraPosition(
-              target:
-                  google.LatLng(chargerSpot.latitude!, chargerSpot.longitude!),
-              zoom: 14)));
+      moveCameraForPageChanged(mapController, chargerSpot);
     },
     child: Padding(
-      padding: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.only(bottom: betweenCards),
       child: Card(
-          margin: EdgeInsets.symmetric(horizontal: 32),
-          elevation: 10,
-          shadowColor: Colors.black.withOpacity(0.30),
+          margin: const EdgeInsets.symmetric(horizontal: paddingFromSide),
+          elevation: cardElevation,
+          shadowColor: cardShadowColor,
           color: Colors.white,
           clipBehavior: Clip.antiAlias,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: cardShape,
           child: Column(
             children: [
-              //image(row)
-              SizedBox(
-                  height: 72,
-                  width: double.infinity,
-                  child: makeImageRow(chargerSpot)),
-              //text(name)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                child: Container(
-                  height: 25,
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    chargerSpot.name!,
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-              // listtile(number)
+              //画像
+              makeRowOfImage(chargerSpot),
+              //名前
+              makeRowOfName(chargerSpot),
+              //充電器数
               makeRowOfNumber(chargerSpot),
-              //listtile(power)
+              //充電出力
               makeRowOfPower(chargerSpot),
-              //listtile(serviceTime)
+              //営業時間
               makeRowOfServiceTime(chargerSpot),
-              //listtile(number)
+              //定休日
               makeRowOfRegularHoliday(chargerSpot),
-              //text(地図アプリで経路を見る)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16,0,16,16),
-                child: SizedBox(
-                  height: 19,
-                  child: Row(
-                    children: const [
-                      Text(
-                        '地図アプリで経路を見る',
-                        style: TextStyle(color: Colors.lightGreen, fontSize: 14),
-                      ),
-                      Icon(
-                        Icons.layers_outlined,
-                        color: Colors.lightGreen,
-                        size: 18,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              //リンク
+              makeLinkToApp(),
             ],
           )),
     ),
@@ -81,114 +48,32 @@ Widget makeCard(ChargerSpot chargerSpot, PageController pageController,
 
 Widget makeCardForPageView(ChargerSpot chargerSpot) {
   return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 8),
+    padding: const EdgeInsets.symmetric(horizontal: paddingCardsForPageView),
     child: Card(
       margin: EdgeInsets.zero,
-        shadowColor: Colors.black.withOpacity(0.45),
-        elevation: 12,
+        shadowColor: cardShadowColor,
+        elevation: cardElevation,
         color: Colors.white,
         clipBehavior: Clip.antiAlias,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: cardShape,
         child: Column(
           children: [
-            //image(row)
-            SizedBox(
-                height: 72,
-                width: double.infinity,
-                child: makeImageRow(chargerSpot)),
-            //text(name)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-              child: Container(
-                height: 25,
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  chargerSpot.name!,
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
-            // listtile(number)
+            //画像
+            makeRowOfImage(chargerSpot),
+            //名前
+            makeRowOfName(chargerSpot),
+            //充電器数
             makeRowOfNumber(chargerSpot),
-            //listtile(power)
+            //充電出力
             makeRowOfPower(chargerSpot),
-            //listtile(serviceTime)
+            //営業時間
             makeRowOfServiceTime(chargerSpot),
-            //listtile(number)
+            //定休日
             makeRowOfRegularHoliday(chargerSpot),
-            //text(地図アプリで経路を見る)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16,0,16,16),
-              child: SizedBox(
-                height: 19,
-                child: Row(
-                  children: const [
-                    Text(
-                      '地図アプリで経路を見る',
-                      style: TextStyle(color: Colors.lightGreen, fontSize: 14),
-                    ),
-                    Icon(
-                      Icons.layers_outlined,
-                      color: Colors.lightGreen,
-                      size: 14,
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            //リンク
+            makeLinkToApp(),
           ],
         )),
   );
 }
 
-// Widget makeCard(ChargerSpot chargerSpot) {
-//   return Card(
-//       margin: EdgeInsets.only(bottom: 20),
-//       shadowColor: Colors.black.withOpacity(0.45),
-//       elevation: 12,
-//       color: Colors.white,
-//       clipBehavior: Clip.antiAlias,
-//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-//       child: Column(
-//         children: [
-//           //image(row)
-//           SizedBox(
-//               height: 72,
-//               width: double.infinity,
-//               child: makeImageRow(chargerSpot)),
-//           //text(name)
-//           ListTile(
-//             leading: Text(
-//               chargerSpot.name!,
-//               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-//             ),
-//           ),
-//           // listtile(number)
-//           makeListTileOfNumber(chargerSpot),
-//           //listtile(power)
-//           makeListTileOfPower(chargerSpot),
-//           //listtile(serviceTime)
-//           makeListTileOfServiceTime(chargerSpot),
-//           //listtile(number)
-//           makeListTileOfRegularHoliday(chargerSpot),
-//           //text(地図アプリで経路を見る)
-//           ListTile(
-//             leading: Row(
-//               mainAxisSize: MainAxisSize.min,
-//               children: const [
-//                 Text(
-//                   '地図アプリで経路を見る',
-//                   style: TextStyle(color: Colors.lightGreen, fontSize: 14),
-//                 ),
-//                 Icon(
-//                   Icons.layers_outlined,
-//                   color: Colors.lightGreen,
-//                   size: 18,
-//                 ),
-//               ],
-//             ),
-//           )
-//         ],
-//       ));
-// }

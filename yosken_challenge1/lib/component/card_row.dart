@@ -1,30 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:yosken_challenge1/src/chargespots.dart';
-
-const double _heightOfListTile = 35;
-
-const _numberIcon = Icons.electrical_services;
-const _powerIcon = Icons.electric_bolt;
-const _timeIcon = Icons.access_time_outlined;
-const _holidayIcon = Icons.calendar_month_outlined;
-const _numberTitle = '利用可能';
-const _powerTitle = '充電出力';
-const _timeTitle = '営業中　';
-const _holidayTitle = '定休日　';
+import 'package:yosken_challenge1/constant/importer_constant.dart';
 
 Widget makeRowForCard(IconData icons, String title, String info) => Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      padding: spotInfoPadding,
       child: SizedBox(
-        height: 19,
+        height: spotInfoHeight,
         child: Row(
           children: [
             Icon(
               icons,
-              size: 14,
-              color: Colors.orange,
+              size: spotInfoIconSize,
+              color: spotInfoIconColor,
             ),
             Text(title),
-            SizedBox(width: 28),
+            const SizedBox(width: spotInfoMargin),
             Text(info)
           ],
         ),
@@ -33,32 +23,32 @@ Widget makeRowForCard(IconData icons, String title, String info) => Padding(
 
 Widget makeRowOfNumber(ChargerSpot chargerSpot) {
   final gogoev_charger_device = chargerSpot.gogoev_charger_devices!;
-  return makeRowForCard(_numberIcon, _numberTitle, '12台');
+  return makeRowForCard(numberIcon, numberTitle, defaultNumber);
 }
 
 Widget makeRowOfPower(ChargerSpot chargerSpot) {
   final chargerDevices = chargerSpot.charger_devices;
-  const powerKw = '不明';
+  const powerKw = unknown;
   for (ChargerDevice chargerDevice in chargerDevices!) {
     final power = chargerDevice.power!;
     final powerKw = '${power}kw';
-    return makeRowForCard(_powerIcon, _powerTitle, powerKw);
+    return makeRowForCard(powerIcon, powerTitle, powerKw);
   }
-  return makeRowForCard(_powerIcon, _powerTitle, powerKw);
+  return makeRowForCard(powerIcon, powerTitle, powerKw);
 }
 
 Widget makeRowOfServiceTime(ChargerSpot chargerSpot) {
   final serviceTimes = chargerSpot.charger_spot_service_times;
-  const serviceTime = '-';
-  for (ChargerSpotServiceTime times in serviceTimes!) {
+  const serviceTime = hyphen;
+  for (SpotServiceTime times in serviceTimes!) {
     if (times.today!) {
       final startTime = times.start_time;
       final endTime = times.end_time;
       final serviceTime = '${startTime}-$endTime';
-      return makeRowForCard(_timeIcon, _timeTitle, serviceTime);
+      return makeRowForCard(timeIcon, timeTitle, serviceTime);
     }
   }
-  return makeRowForCard(_timeIcon, _timeTitle, serviceTime);
+  return makeRowForCard(timeIcon, timeTitle, serviceTime);
 }
 
 Widget makeRowOfRegularHoliday(ChargerSpot chargerSpot) {
@@ -67,11 +57,11 @@ Widget makeRowOfRegularHoliday(ChargerSpot chargerSpot) {
   regularHolidayList =
       makeRegularHolidayList(serviceTimes!, regularHolidayList);
   return makeRowForCard(
-      _holidayIcon, _holidayTitle, regularHolidayList.join('、'));
+      holidayIcon, holidayTitle, regularHolidayList.join('、'));
 }
 
 List<String> makeRegularHolidayList(
-    List<ChargerSpotServiceTime> serviceTimes, List<String> regularHoliday) {
+    List<SpotServiceTime> serviceTimes, List<String> regularHoliday) {
   Map<String, String> dayOfWeek = {
     'Sunday': '日曜日',
     'Monday': '月曜日',
@@ -84,10 +74,10 @@ List<String> makeRegularHolidayList(
     'Weekday': '平日',
   };
 
-  for (ChargerSpotServiceTime serviceTime in serviceTimes) {
+  for (SpotServiceTime serviceTime in serviceTimes) {
     if (serviceTime.business_day == 'no') {
       regularHoliday.add(dayOfWeek[serviceTime.day]!);
     }
   }
-  return regularHoliday.isNotEmpty ? regularHoliday : ['-'];
+  return regularHoliday.isNotEmpty ? regularHoliday : [hyphen];
 }

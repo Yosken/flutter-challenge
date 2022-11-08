@@ -1,23 +1,15 @@
-import 'dart:convert';
-import 'package:flutter/foundation.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:http/http.dart' as http;
 import 'package:json_annotation/json_annotation.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart'as google;
-import 'package:riverpod/riverpod.dart';
-import 'package:yosken_challenge1/model/fetch_my_location.dart';
-import 'package:yosken_challenge1/secret/key.dart' as key;
 
 part 'chargespots.g.dart';
 
 @JsonSerializable()
-class LatLngOfChargerSpots {
-  LatLngOfChargerSpots({
+class LatLngOfSpot {
+  LatLngOfSpot({
     required this.latitude,
     required this.longitude,
   });
 
-  factory LatLngOfChargerSpots.fromJson(Map<String, dynamic> json) => _$LatLngFromJson(json);
+  factory LatLngOfSpot.fromJson(Map<String, dynamic> json) => _$LatLngFromJson(json);
 
   Map<String, dynamic> toJson() => _$LatLngToJson(this);
 
@@ -26,8 +18,8 @@ class LatLngOfChargerSpots {
 }
 
 @JsonSerializable()
-class ChargerSpotServiceTime {
-  ChargerSpotServiceTime({
+class SpotServiceTime {
+  SpotServiceTime({
     required this.business_day,
     required this.day,
     required this.start_time,
@@ -35,7 +27,7 @@ class ChargerSpotServiceTime {
     required this.today,
   });
 
-  factory ChargerSpotServiceTime.fromJson(Map<String, dynamic> json) =>
+  factory SpotServiceTime.fromJson(Map<String, dynamic> json) =>
       _$ChargerSpotServiceTimeFromJson(json);
 
   Map<String, dynamic> toJson() => _$ChargerSpotServiceTimeToJson(this);
@@ -48,12 +40,12 @@ class ChargerSpotServiceTime {
 }
 
 @JsonSerializable()
-class ChargerSpotImage {
-  ChargerSpotImage({
+class SpotImage {
+  SpotImage({
     required this.url,
   });
 
-  factory ChargerSpotImage.fromJson(Map<String, dynamic> json) =>
+  factory SpotImage.fromJson(Map<String, dynamic> json) =>
       _$ChargerSpotImageFromJson(json);
 
   Map<String, dynamic> toJson() => _$ChargerSpotImageToJson(this);
@@ -109,9 +101,9 @@ class ChargerSpot {
   Map<String, dynamic> toJson() => _$ChargerSpotToJson(this);
 
   final String? uuid;
-  final List<ChargerSpotServiceTime>? charger_spot_service_times;
+  final List<SpotServiceTime>? charger_spot_service_times;
   final String? now_available;
-  final List<ChargerSpotImage>? images;
+  final List<SpotImage>? images;
   final double? latitude;
   final double? longitude;
   final String? name;
@@ -143,78 +135,3 @@ class SwAndNeLatLng {
   final neLat;
   final neLng;
 }
-
-List parseSpots(String responseBody) {
-  var list = json.decode(responseBody)['charger_spots'] as List;
-  List spots = list.map((model) => ChargerSpots.fromJson(model)).toList();
-  return spots;
-}
-
-Future<ChargerSpots> fetchChargerSpots(SwAndNeLatLng swAndNeLatLng) async {
-  final chargerSpots = <ChargerSpots>[];
-
-  final fields = [
-    'images',
-    'charger_spot_service_times',
-    'now_available',
-    'charger_devices',
-    'gogoev_charger_devices'
-  ];
-  final queryParameters = {
-    'sw_lat': swAndNeLatLng.swLat.toString(),
-    'sw_lng': swAndNeLatLng.swLng.toString(),
-    'ne_lat': swAndNeLatLng.neLat.toString(),
-    'ne_lng': swAndNeLatLng.neLng.toString(),
-    'fields': fields.join(',')
-  };
-  final uri = Uri.https('stg.evene.jp', '/api/charger_spots', queryParameters);
-  final response = await http.get(uri, headers: {
-    'accept': 'application/json',
-    'X-EVENE-NATIVE-API-TOKEN': key.token
-  });
-  if (response.statusCode == 200) {
-    print(response.body);
-    return ChargerSpots.fromJson(json.decode(response.body));
-  } else {
-    throw Exception('Can\'t get users');
-  }
-}
-
-final rangeLatLngProvider = StateProvider((ref) {
-  return SwAndNeLatLng(34.683331703634124, 139.7657155055581,
-      35.686849507072736, 139.77340835691592);
-});
-
-final firstLatLngProvider = StateProvider((ref) => const google.LatLng(35.680399,139.767779));
-
-// final myLatLngProvider = FutureProvider((ref) async{
-//   final myLatLng = getMyL;
-//   return myLatLng;
-// });
-
-final chargerSpotsFutureProvider = FutureProvider((ref) async {
-  print('FutureProvider');
-  final swAndNeLatLng = ref.watch(rangeLatLngProvider);
-  return fetchChargerSpots(swAndNeLatLng);
-});
-
-
-// final myPositionProvider = FutureProvider((ref) async {
-//   print('latlngfutureProvider');
-//   final myPosition = await getMyPosition();
-//   return myPosition;
-// });
-
-final myPositionProvider = FutureProvider((ref) async {
-  print('latlngfutureProvider');
-  final count = ref.watch(countProvider);
-  final range = ref.watch(rangeProvider);
-  final myPosition = getSwAndNeLatLng(range);
-  return myPosition;
-});
-
-final countProvider = StateProvider((ref) => 0);
-
-final rangeProvider = StateProvider((ref) => google.LatLng(0.1,0.1));
-
-
